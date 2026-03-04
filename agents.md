@@ -29,6 +29,14 @@ Placed as follows:
 
 Keep API routes thin; put business and agent logic in `src/lib/` or `src/agents/` and call from routes.
 
+## Auth (JWT)
+
+- **Library**: `jose` for signing/verifying JWTs (HS256). Token stored in httpOnly cookie `auth-token`.
+- **Config**: `src/lib/auth.ts` — `signToken`, `verifyToken`, `getSession` (reads cookie, returns `{ sub, name }` or null).
+- **Routes**: `POST /api/auth/login` (body: `{ email, password }`, any non-empty pair issues a JWT and sets cookie); `POST /api/auth/logout` (clears cookie).
+- **Pages**: `src/app/auth/signin/page.tsx` — email/password form; home page shows session or “Sign in” link and “Sign out” when logged in.
+- **Env**: `AUTH_SECRET` (min 32 chars). No credential check; for real auth, validate against DB (e.g. Prisma User + hashed password).
+
 ## Best Practices
 
 - **TypeScript**: Use strict types; avoid `any`. Prefer interfaces/types for API and agent boundaries.
