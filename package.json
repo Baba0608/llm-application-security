@@ -18,25 +18,32 @@
     "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
+    "@ai-sdk/langchain": "^2.0.122",
+    "@langchain/core": "^1.1.30",
+    "@langchain/openai": "^1.2.12",
     "@prisma/adapter-pg": "^7",
     "@prisma/client": "^7",
+    "@ai-sdk/react": "^3.0.0",
+    "ai": "^6.0.116",
+    "deepagents": "^1.8.1",
     "jose": "^6",
+    "langchain": "^1.2.29",
     "next": "16.1.6",
     "pg": "^8",
     "react": "19.2.3",
     "react-dom": "19.2.3"
   },
   "devDependencies": {
-    "prisma": "^7",
-    "tsx": "^4",
-    "dotenv": "^16",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "dotenv": "^16",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
+    "prisma": "^7",
     "tailwindcss": "^4",
+    "tsx": "^4",
     "typescript": "^5"
   }
 }
