@@ -1,6 +1,7 @@
 import { ChatOpenAI } from "@langchain/openai";
 import { createDeepAgent } from "deepagents";
 import { sqlSubagentToolsSecure } from "@/lib/sql-subagent-tools-secure";
+import { intentCheckMiddleware } from "@/lib/intent-classifier";
 
 const model = new ChatOpenAI({
   model: "gpt-4.1",
@@ -22,9 +23,12 @@ Format your replies in Markdown: use lists for multiple items and fenced code bl
   tools: sqlSubagentToolsSecure,
 };
 
+// basic input validation middleware using regex patterns
+
 export const agent = createDeepAgent({
   model,
   systemPrompt: SYSTEM_PROMPT,
   tools: [],
   subagents: [sqlSubagentSecure],
+  middleware: [intentCheckMiddleware as any],
 });
