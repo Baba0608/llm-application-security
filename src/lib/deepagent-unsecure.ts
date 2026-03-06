@@ -24,55 +24,25 @@ Format your replies in Markdown: use lists for multiple rows or items, and fence
 model Customer {
   id        Int      @id @default(autoincrement())
   email     String   @unique
-  fullName  String
-  phone     String?
-  createdAt DateTime @default(now())
-
-  orders Order[]
+  fullName  String   @map("full_name")
+  phone     String? 
+  createdAt DateTime @default(now()) @map("created_at")
 
   @@map("customers")
 }
 
-// Products – reference data (low sensitivity)
 model Product {
-  id        Int      @id @default(autoincrement())
-  name      String
-  sku       String   @unique
-  priceCents Int
-  createdAt DateTime @default(now())
-
-  orderItems OrderItem[]
+  id          Int      @id @default(autoincrement())
+  name        String  
+  sku         String   @unique
+  priceCents  Int      @map("price_cents")
+  createdAt   DateTime @default(now()) @map("created_at")
 
   @@map("products")
 }
 
-// Orders – sensitive (who bought what); scope by customer for access control
-model Order {
-  id          Int      @id @default(autoincrement())
-  customerId  Int
-  totalCents  Int
-  status      String   @default("pending") // pending | paid | shipped
-  createdAt   DateTime @default(now())
+- **USE MAPPED COLUMN NAMES WHEN QUERYING THE DATABASE. like full_name instead of fullName**
 
-  customer   Customer    @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  orderItems OrderItem[]
-
-  @@map("orders")
-}
-
-// Order line items
-model OrderItem {
-  id             Int   @id @default(autoincrement())
-  orderId        Int
-  productId      Int
-  quantity       Int
-  unitPriceCents Int
-
-  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  product Product @relation(fields: [productId], references: [id], onDelete: Restrict)
-
-  @@map("order_items")
-}
 `;
 
 /** SQL subagent: INSECURE — runs raw LLM-generated SQL (demo: LLM01, LLM02, LLM05). */

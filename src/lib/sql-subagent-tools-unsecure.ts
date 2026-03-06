@@ -27,8 +27,27 @@ export const runSqlToolUnsecure = new DynamicStructuredTool({
     try {
       // UNSAFE: Executes raw LLM-generated SQL — vulnerable to injection and PII leakage
       console.log("Running SQL query:", sql);
-      const result = await prisma.$queryRawUnsafe(sql);
-      return JSON.stringify(result, null, 2);
+      const result: any = await prisma.$queryRawUnsafe(sql);
+
+      // OUTPUT FILTERING:
+      // check for sensitive information column names in the result and remove that column from the result.
+      const sensitiveInformation = [
+        "access_token",
+        "created_at",
+        "updated_at",
+        // "id",
+        // "sku",
+      ];
+
+      const filteredResult = result.map((item: any) => {
+        return Object.fromEntries(
+          Object.entries(item).filter(
+            ([key]) => !sensitiveInformation.includes(key)
+          )
+        );
+      });
+
+      return JSON.stringify(filteredResult, null, 2);
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       return `SQL error: ${message}`;
