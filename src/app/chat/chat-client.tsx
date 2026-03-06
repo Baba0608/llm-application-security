@@ -4,6 +4,8 @@ import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import { useState } from "react";
 import Link from "next/link";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 type ChatMessage = {
   id: string;
@@ -81,8 +83,12 @@ export function ChatClient({ api, variant, examplePrompts }: ChatClientProps) {
           <ul className="mb-3 list-inside list-disc text-sm text-emerald-800 dark:text-emerald-200/90">
             <li>Input handling (suspicious patterns rejected or classified)</li>
             <li>Structured prompts (instructions vs user data separated)</li>
-            <li>Output filtered (secrets redacted; only allowlisted tools run)</li>
-            <li>Limited tools (list products, orders by customer/order ID only)</li>
+            <li>
+              Output filtered (secrets redacted; only allowlisted tools run)
+            </li>
+            <li>
+              Limited tools (list products, orders by customer/order ID only)
+            </li>
           </ul>
           <Link
             href="/chat"
@@ -120,23 +126,80 @@ export function ChatClient({ api, variant, examplePrompts }: ChatClientProps) {
             Send a message to start the conversation.
           </p>
         )}
-        {messages.map((message: ChatMessage) => (
-          <div
-            key={message.id}
-            className={
-              message.role === "user"
-                ? "ml-auto max-w-[85%] rounded-lg bg-zinc-200 px-3 py-2 text-sm dark:bg-zinc-700"
-                : "mr-auto max-w-[85%] rounded-lg bg-zinc-100 px-3 py-2 text-sm dark:bg-zinc-800"
-            }
-          >
-            <span className="font-medium text-zinc-600 dark:text-zinc-400">
-              {message.role === "user" ? "You" : "Assistant"}:
-            </span>{" "}
-            <span className="text-zinc-900 dark:text-zinc-100">
-              {getMessageText(message)}
-            </span>
-          </div>
-        ))}
+        {messages.map((message: ChatMessage) => {
+          const text = getMessageText(message);
+          const isAssistant = message.role !== "user";
+          return (
+            <div
+              key={message.id}
+              className={
+                message.role === "user"
+                  ? "ml-auto max-w-[85%] rounded-lg bg-zinc-200 px-3 py-2 text-sm dark:bg-zinc-700"
+                  : "mr-auto max-w-[85%] rounded-lg bg-zinc-100 px-3 py-2 text-sm dark:bg-zinc-800"
+              }
+            >
+              <span className="font-medium text-zinc-600 dark:text-zinc-400">
+                {message.role === "user" ? "You" : "Assistant"}:
+              </span>{" "}
+              {isAssistant ? (
+                <div className="mt-1 max-w-none text-zinc-900 dark:text-zinc-100 [&_p]:mb-1 [&_p]:last:mb-0 [&_pre]:rounded [&_pre]:bg-zinc-200 [&_pre]:dark:bg-zinc-700">
+                  <ReactMarkdown
+                    remarkPlugins={[remarkGfm]}
+                    components={{
+                      p: ({ children }) => (
+                        <p className="mb-1 last:mb-0">{children}</p>
+                      ),
+                      ul: ({ children }) => (
+                        <ul className="list-disc pl-4 space-y-0.5 my-1">
+                          {children}
+                        </ul>
+                      ),
+                      ol: ({ children }) => (
+                        <ol className="list-decimal pl-4 space-y-0.5 my-1">
+                          {children}
+                        </ol>
+                      ),
+                      li: ({ children }) => (
+                        <li className="leading-snug">{children}</li>
+                      ),
+                      pre: ({ children }) => (
+                        <pre className="overflow-x-auto rounded p-2 text-xs">
+                          {children}
+                        </pre>
+                      ),
+                      code: ({ className, children }) => {
+                        const isBlock = className?.includes("language-");
+                        return isBlock ? (
+                          <code className={className}>{children}</code>
+                        ) : (
+                          <code className="rounded bg-zinc-200 px-1 py-0.5 dark:bg-zinc-700 font-mono text-xs">
+                            {children}
+                          </code>
+                        );
+                      },
+                      a: ({ href, children }) => (
+                        <a
+                          href={href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 dark:text-blue-400 underline"
+                        >
+                          {children}
+                        </a>
+                      ),
+                    }}
+                  >
+                    {text}
+                  </ReactMarkdown>
+                </div>
+              ) : (
+                <span className="text-zinc-900 dark:text-zinc-100 whitespace-pre-wrap warp-break-words">
+                  {text}
+                </span>
+              )}
+            </div>
+          );
+        })}
       </div>
 
       {error && (

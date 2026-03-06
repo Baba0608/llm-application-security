@@ -16,7 +16,7 @@ model User {
   email     String   @unique
   name      String
   role      String   @default("viewer") // viewer | support | admin
-  createdAt DateTime @default(now())
+  createdAt DateTime @default(now()) @map("created_at")
 
   @@map("users")
 }
@@ -25,9 +25,9 @@ model User {
 model Customer {
   id        Int      @id @default(autoincrement())
   email     String   @unique
-  fullName  String
+  fullName  String   @map("full_name")
   phone     String?
-  createdAt DateTime @default(now())
+  createdAt DateTime @default(now()) @map("created_at")
 
   orders Order[]
 
@@ -36,11 +36,11 @@ model Customer {
 
 // Products – reference data (low sensitivity)
 model Product {
-  id        Int      @id @default(autoincrement())
-  name      String
-  sku       String   @unique
-  priceCents Int
-  createdAt DateTime @default(now())
+  id         Int      @id @default(autoincrement())
+  name       String
+  sku        String   @unique
+  priceCents Int      @map("price_cents")
+  createdAt  DateTime @default(now()) @map("created_at")
 
   orderItems OrderItem[]
 
@@ -49,11 +49,11 @@ model Product {
 
 // Orders – sensitive (who bought what); scope by customer for access control
 model Order {
-  id          Int      @id @default(autoincrement())
-  customerId  Int
-  totalCents  Int
-  status      String   @default("pending") // pending | paid | shipped
-  createdAt   DateTime @default(now())
+  id         Int      @id @default(autoincrement())
+  customerId Int      @map("customer_id")
+  totalCents Int      @map("total_cents")
+  status     String   @default("pending") // pending | paid | shipped
+  createdAt  DateTime @default(now()) @map("created_at")
 
   customer   Customer    @relation(fields: [customerId], references: [id], onDelete: Cascade)
   orderItems OrderItem[]
@@ -63,11 +63,11 @@ model Order {
 
 // Order line items
 model OrderItem {
-  id             Int   @id @default(autoincrement())
-  orderId        Int
-  productId      Int
+  id             Int @id @default(autoincrement())
+  orderId        Int @map("order_id")
+  productId      Int @map("product_id")
   quantity       Int
-  unitPriceCents Int
+  unitPriceCents Int @map("unit_price_cents")
 
   order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
   product Product @relation(fields: [productId], references: [id], onDelete: Restrict)
