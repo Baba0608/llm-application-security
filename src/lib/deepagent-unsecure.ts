@@ -41,8 +41,7 @@ model Product {
   @@map("products")
 }
 
-- **USE MAPPED COLUMN NAMES WHEN QUERYING THE DATABASE. like full_name instead of fullName**
-
+- **USE MAPPED COLUMN NAMES WHEN QUERYING THE DATABASE. e.g. full_name instead of fullName.**
 `;
 
 /** SQL subagent: INSECURE — runs raw LLM-generated SQL (demo: LLM01, LLM02, LLM05). */
