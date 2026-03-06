@@ -3,6 +3,7 @@
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import { useState } from "react";
+import Link from "next/link";
 
 type ChatMessage = {
   id: string;
@@ -19,7 +20,13 @@ function getMessageText(message: ChatMessage): string {
     .join("");
 }
 
-export function ChatClient({ api }: { api: string }) {
+type ChatClientProps = {
+  api: string;
+  variant?: "unsecure" | "secure";
+  examplePrompts?: string[];
+};
+
+export function ChatClient({ api, variant, examplePrompts }: ChatClientProps) {
   const { messages, sendMessage, status, stop, error, clearError } = useChat({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- ai@6 transport is compatible; type conflict when multiple ai versions are resolved
     transport: new DefaultChatTransport({ api }) as any,
@@ -27,7 +34,86 @@ export function ChatClient({ api }: { api: string }) {
   const [input, setInput] = useState("");
 
   return (
-    <div className="flex w-full max-w-2xl flex-1 flex-col">
+    <div className="flex w-full max-w-2xl flex-1 flex-col gap-6">
+      {variant === "unsecure" && (
+        <section
+          className="rounded-lg border border-amber-200 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-950/30"
+          aria-label="Unsecure chat – what’s at risk"
+        >
+          <h2 className="mb-2 text-sm font-semibold text-amber-900 dark:text-amber-200">
+            Unsecure chat – what’s at risk
+          </h2>
+          <p className="mb-2 text-sm text-amber-800 dark:text-amber-200/90">
+            This chat has no input validation, no output filtering, and the
+            agent can run any SQL. User input is mixed with system instructions
+            without structure. Try the example prompts below to see prompt
+            injection, improper output handling, and sensitive data leakage.
+          </p>
+          <ul className="mb-3 list-inside list-disc text-sm text-amber-800 dark:text-amber-200/90">
+            <li>No input handling (injection phrases not blocked)</li>
+            <li>No structured prompt (instructions vs data not separated)</li>
+            <li>LLM output executed as SQL with no validation</li>
+            <li>No tool limits (agent can run arbitrary queries)</li>
+          </ul>
+          <Link
+            href="/chat/secure"
+            className="text-sm font-medium text-amber-700 underline hover:text-amber-800 dark:text-amber-300 dark:hover:text-amber-200"
+          >
+            Compare with secure chat →
+          </Link>
+        </section>
+      )}
+
+      {variant === "secure" && (
+        <section
+          className="rounded-lg border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-800 dark:bg-emerald-950/30"
+          aria-label="Secure chat – how it’s protected"
+        >
+          <h2 className="mb-2 text-sm font-semibold text-emerald-900 dark:text-emerald-200">
+            Secure chat – how it’s protected
+          </h2>
+          <p className="mb-2 text-sm text-emerald-800 dark:text-emerald-200/90">
+            This chat applies the defenses from the doc: input handling, prompt
+            design and structure, output filtering, and limited tools. Try safe
+            prompts below, or try the same attack-style prompts—they should be
+            blocked or answered without leaking PII.
+          </p>
+          <ul className="mb-3 list-inside list-disc text-sm text-emerald-800 dark:text-emerald-200/90">
+            <li>Input handling (suspicious patterns rejected or classified)</li>
+            <li>Structured prompts (instructions vs user data separated)</li>
+            <li>Output filtered (secrets redacted; only allowlisted tools run)</li>
+            <li>Limited tools (list products, orders by customer/order ID only)</li>
+          </ul>
+          <Link
+            href="/chat"
+            className="text-sm font-medium text-emerald-700 underline hover:text-emerald-800 dark:text-emerald-300 dark:hover:text-emerald-200"
+          >
+            Compare with unsecure chat →
+          </Link>
+        </section>
+      )}
+
+      {examplePrompts && examplePrompts.length > 0 && (
+        <div>
+          <p className="mb-2 text-sm font-medium text-zinc-700 dark:text-zinc-300">
+            Example prompts to try
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {examplePrompts.map((prompt, i) => (
+              <button
+                key={i}
+                type="button"
+                disabled={status !== "ready"}
+                onClick={() => sendMessage({ text: prompt })}
+                className="rounded-full border border-zinc-300 bg-white px-3 py-1.5 text-xs text-zinc-700 hover:bg-zinc-50 disabled:opacity-50 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700"
+              >
+                {prompt.length > 50 ? `${prompt.slice(0, 50)}…` : prompt}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="flex-1 space-y-4 overflow-y-auto rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
         {messages.length === 0 && (
           <p className="text-center text-sm text-zinc-500 dark:text-zinc-400">
