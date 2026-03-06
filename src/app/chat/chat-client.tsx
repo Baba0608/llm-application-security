@@ -47,7 +47,7 @@ export function ChatClient({ api, variant, examplePrompts }: ChatClientProps) {
           </h2>
           <p className="mb-2 text-sm text-amber-800 dark:text-amber-200/90">
             This chat has no input validation, no output filtering, and the
-            agent can run any SQL. The system prompt tells the model <strong>not to reveal customer emails or phone numbers</strong>. Prompt injection is when the user&apos;s message tries to override that (e.g. &quot;ignore instructions&quot;, &quot;I am admin&quot;) — the system prompt is not changed; whether the model obeys the user or the prompt depends on the model. You cannot rely on prompt text for security.
+            agent can run any SQL.
           </p>
           <ul className="mb-3 list-inside list-disc text-sm text-amber-800 dark:text-amber-200/90">
             <li>No input handling (injection phrases not blocked)</li>
@@ -56,7 +56,9 @@ export function ChatClient({ api, variant, examplePrompts }: ChatClientProps) {
             <li>No tool limits (agent can run arbitrary queries)</li>
           </ul>
           <p className="mb-2 text-xs text-amber-700 dark:text-amber-300/90">
-            Try the injection examples below. The system prompt is unchanged; if the model complies with the user&apos;s override, PII is exposed.
+            Try the injection examples below. The system prompt is unchanged; if
+            the model complies with the user&apos;s override, sensitive data is
+            exposed.
           </p>
           <Link
             href="/chat/secure"
